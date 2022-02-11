@@ -6,21 +6,50 @@ $(function() {
 // pegar coordenadas do IP: http://www.geoplugin.net
 // gerar gráficos em JS: https://www.highcharts.com/demo
 
-let apikey = 	"SzqMTen6C54RHwAfGyrUV2zTzCgHkhSA";
+//apikeyt = 	"SzqMTen6C54RHwAfGyrUV2zTzCgHkhSA";
+
+function pegarTempoAtual (localCode) {
+  
+    $.ajax({
+      url : "http://dataservice.accuweather.com/currentconditions/v1/" + localCode + "?apikey=" + apikeyt + "&language=pt-br",
+      type: "GET",
+      dataType: "json",
+    
+      success: function(data){
+     console.log(data);
+      },
+      error: function(){
+      console.log("Erro na requisição");
+      }  
+    
+    });
+}
+
+pegarTempoAtual (36364)
 
 
+function pegarLocalUsuario (lat, long) {
+  
   $.ajax({
-    url : "http://dataservice.accuweather.com/currentconditions/v1/7894?apikey=%09" + apikey + "&language=pt-br",
+    url : "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=" + apikeyt + "&q=" + lat +"%2C" + long + "&language=pt-br",
     type: "GET",
     dataType: "json",
   
     success: function(data){
-    console.log(data);
+      //var localCode = data.Key;
+      //pegarTempoAtual (localCode)
+      //console.log(localCode);
+
     },
     error: function(){
     console.log("Erro na requisição");
     }  
   
   });
+}
+
+//pegarLocalUsuario (-22.727448,-47.291195);
+
+
 
 });
