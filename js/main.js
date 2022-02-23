@@ -21,6 +21,7 @@ $(function() {
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Define as coordenadas de IP 
   function pegarCordenadasIP(){
 
         var lat_padrao = -22.80483179823112;
@@ -44,7 +45,7 @@ $(function() {
       },
       error: function(){
 
-          console.log("Erro na requisição");
+          gerarErros("Erro na requisição"); 
           pegarLocalUsuario(lat_padrao, long_padrao);
       } 
     });
@@ -52,7 +53,8 @@ $(function() {
     pegarCordenadasIP();
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
-  
+
+  // Define as coordenadas de pesquisa digitada pelo usuario 
   function  pegarCordPesq(input){
 
       input = encodeURI(input);
@@ -64,7 +66,7 @@ $(function() {
 
       success: function(data){
 
-          console.log("mapbox: ", data);
+          //console.log("mapbox: ", data);
 
       try{
 
@@ -78,54 +80,14 @@ $(function() {
       }
       },  
       error: function(){
-
-        console.log("Erro no mapbox");
+        gerarErros("Erro no mapbox");
       }
    });
   }
 
-  //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
-
-// Pesquisar com a tecla normal 
-
-  $('#search-button').click(function(){
-
-    $('.refresh-loader').show();
-
-      var local = $('input#local').val();
-
-    if(local){
-
-      pegarCordPesq(local);
-
-    }else{
-
-        alert('Local Invalido');
-    }
-  });
-
-// Pesquisar com a tecla enter 
-
-  $('input#local').on('keypress', function(e){
-
-    if(e.which == 13){
-        
-      $('.refresh-loader').show();
-
-      var local = $('input#local').val();
-    
-    if(local){
-
-      pegarCordPesq(local);
-    
-    }else{
-            alert('Local Invalido');
-        }
-    }  
-});
-
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Define o local atual do usuario através das coordenadas de IP 
   function pegarLocalUsuario (lat, long) {
     
     $.ajax({
@@ -134,7 +96,7 @@ $(function() {
         dataType: "json",
     
       success: function(data){
-        console.log(data);
+        //console.log(data);
 
       try {
                   
@@ -155,14 +117,15 @@ $(function() {
         PegarPrevisaoHoraHora(localCode)
       },
       error: function(){
+        gerarErros('Erro no código do local');
 
-        console.log("Erro na requisição");
       }  
     });
   }
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Responsável por gerar uma requisição do clima atual
   function pegarTempoAtual (localCode) {
 
     $.ajax({
@@ -171,7 +134,7 @@ $(function() {
         dataType: "json",
       
       success: function(data){
-        console.log(data);
+        //console.log(data);
 
         weatherObject.temperatura = data[0].Temperature.Metric.Value;
         weatherObject.texto_clima = data[0].WeatherText;
@@ -183,14 +146,14 @@ $(function() {
         preencherClimaAgora(weatherObject.cidade,weatherObject.estado,weatherObject.pais,weatherObject.temperatura,weatherObject.texto_clima,weatherObject.icone_clima);
       },
       error: function(){
-
-        console.log("Erro na requisição");
+        gerarErros('Erro ao obter clima atual');
       }    
     });
   }
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Responsável por preencher o gráfico com o clima atual 
   function preencherClimaAgora(cidade,estado,pais,temperatura,texto_clima,icone_clima){
 
       var texto_local = cidade + ", " + estado + ". " + pais;
@@ -202,6 +165,7 @@ $(function() {
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Código do gráfico requisitada do site highcharts
   function PegarGrafico(horas, temperaturas) {
 
     Highcharts.chart('hourly_chart', {
@@ -237,6 +201,7 @@ $(function() {
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Responsável por atualizar o gráfico de hora em hora
   function PegarPrevisaoHoraHora(localCode){
 
     $.ajax({
@@ -245,7 +210,6 @@ $(function() {
         dataType: "json",
 
       success: function(data){
-        console.log("hourly forecast: ", data);
 
         var horarios = [];
         var temperaturas = [];
@@ -263,7 +227,6 @@ $(function() {
       },
       error: function(){
 
-        console.log("Erro na requisição");
         gerarErros('Erro ao obter previsão hora a hora');
       }  
     });
@@ -271,6 +234,7 @@ $(function() {
 
   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Responsável por gerar uma requisição do clima por até 5 dias
   function pegarTempo5Dias(localCode){  
 
     $.ajax({
@@ -280,7 +244,7 @@ $(function() {
 
       success: function(data){
 
-        console.log("5 dias: ", data);
+        //console.log("5 dias: ", data);
       
         $('#texto_max_min').html(String(data.DailyForecasts[0].Temperature.Minimum.Value) + "&deg: /" + String(data.DailyForecasts[0].Temperature.Maximum.Value) + "&deg:");
                     
@@ -288,13 +252,14 @@ $(function() {
       },
       error: function(){
 
-        console.log("Erro na requisição");
         gerarErros('Erro ao obter previsão de 5 dias');
       }  
     });
   }
 
+  //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 
+  // Responsável por preencher o gráfico de 5 dias
   function preencherTempo5Dias(previsoes){
 
       $('#info_5dias').html("");
@@ -328,7 +293,55 @@ $(function() {
         elementoHtmlDia = "";
     }
   }
+ 
+ //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
+ 
+ // Responsável para informar sobre a manifestação de erros
+  function gerarErros(mensagem){
+      if(!mensagem){
+          mensagem = "Erro na solicitação";
+      }
+          $('.refresh-loader').hide();
+          $('#aviso-erro').text(mensagem);
+          $('#aviso-erro').slideDown();
+
+      window.setTimeout(function(){
+          $('#aviso-erro').slideUp();
+    },4000);
+  }
+  
+  
+  // Pesquisar com a tecla enter 
+
+  $('input#local').on('keypress', function(e){
+      if(e.which == 13){
+          $('.refresh-loader').show();
+
+          var local = $('input#local').val();
+      if(local){
+          pegarCordPesq(local);  
+      }else{
+            alert('Local Invalido');
+      }
+      }  
+  });
+
+  // Pesquisar com a tecla normal 
+
+  $('#search-button').click(function(){
+
+  $('.refresh-loader').show();
+          var local = $('input#local').val();
+
+      if(local){
+          pegarCordPesq(local);
+      }else{
+          alert('Local Invalido');
+      }
+  });
 
 
 
+  
+  
   });
